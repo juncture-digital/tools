@@ -1,2 +1,1 @@
-# tools
-Juncture Tools
+# Juncture tools
