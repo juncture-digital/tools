@@ -383,7 +383,7 @@
               let htmlEls = new DOMParser().parseFromString(html, 'text/html').children[0].children
               let head = htmlEls[0]
               let body = htmlEls[1]
-              // Array.from(body.querySelectorAll('ve-image')).forEach(veImg => veImg.setAttribute('auth-token', this.authToken))
+              // Array.from(body.querySelectorAll('ve-media')).forEach(veImg => veImg.setAttribute('auth-token', this.authToken))
               preview.innerHTML = body.innerHTML
               this.loadDependencies(head.querySelectorAll('link[rel="stylesheet"]'), 0, () => this.loadDependencies(head.querySelectorAll('style'), 0, null))
               this.loadDependencies(body.querySelectorAll('script'), 0, null)
@@ -474,11 +474,11 @@
           : manifestUrl
         let text = pos.line === 0
           ? `.ve-header "Essay Title" ${imageId}\n\n`
-          : `\n.ve-image ${imageId}\n`
-        let imagesList = this.getTagItems(pos, '.ve-image')
+          : `\n.ve-media ${imageId}\n`
+        let imagesList = this.getTagItems(pos, '.ve-media')
         if (imagesList.length > 0) {
           let merged = imagesList.length === 1
-            ? `.ve-image\n    - ${imagesList[0].slice(10)}\n`
+            ? `.ve-media\n    - ${imagesList[0].slice(10)}\n`
             : imagesList.join('\n') + '\n'
           merged += `    - ${text.split(/\s/).filter(x => x).slice(1).join(' ')}\n`
           this.easyMDE.codemirror.setSelection({line:pos.line-imagesList.length+1,ch:0}, {line:pos.line})
@@ -522,7 +522,7 @@
             let imageId = manifestUrl.indexOf('iiif.juncture-digital.org') > 0 && manifestUrl.indexOf('manifest.json') === manifestUrl.length - 13
               ? manifestUrl.split('/').slice(3,-1).join('/')
               : manifestUrl
-            this.easyMDE.codemirror.replaceSelection(`\n.ve-image ${decodeURIComponent(imageId)}\n`)
+            this.easyMDE.codemirror.replaceSelection(`\n.ve-media ${decodeURIComponent(imageId)}\n`)
           } else {
             this.getManifestUrl(pastedText).then((manifestUrl) => {
               manifestUrl = manifestUrl.indexOf('iiif.juncture-digital.org') > 0
