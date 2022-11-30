@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
   <title>Juncture: Media Tool</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
 
@@ -21,7 +21,7 @@
     <ve-header
       v-cloak
       background="#5B152E"
-      logo="https://raw.githubusercontent.com/visual-essays/media/main/images/Juncture_Logo.png"
+      logo="https://raw.githubusercontent.com/juncture-digital/media/main/images/Juncture_Logo.png"
       contact="Ron.Snyder@ithaka.org"
       
     >
@@ -67,9 +67,9 @@
     }
     const isDev = window.location.hostname == 'localhost'
     const iiifServer = 'https://iiif.juncture-digital.org'
-    const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/visual-essays/dist/visual-essays'
-    addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/visual-essays.css`})
-    addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/visual-essays.esm.js`})
+    const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'
+    addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/juncture-digital.css`})
+    addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/juncture-digital.esm.js`})
     console.log(`media: hostname=${window.location.hostname} isDev=${isDev} iiifServer=${iiifServer} wcEndpoint=${wcEndpoint}`)
   </script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>

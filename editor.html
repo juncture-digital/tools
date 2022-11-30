@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
   <title>Juncture: Editor</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css" rel="stylesheet"/>
@@ -43,7 +43,7 @@
       v-cloak
       labe="Editor"
       background="#5B152E"
-      logo="https://raw.githubusercontent.com/visual-essays/media/main/images/Juncture_Logo.png"
+      logo="https://raw.githubusercontent.com/juncture-digital/media/main/images/Juncture_Logo.png"
       url="/"
       contact="Ron.Snyder@ithaka.org"
     >
@@ -102,14 +102,14 @@
     }
     const isDev = window.location.hostname == 'localhost'
     const apiEndpoint = isDev ? 'http://localhost:8000' : 'https://api.juncture-digital.org'
-    const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/visual-essays/dist/visual-essays'
+    const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'
     const iiifEndpoint = isDev ? 'http://localhost:8088' : 'https://iiif.juncture-digital.org'
     // console.log(`editor: hostname=${window.location.hostname} isDev=${isDev} apiEndpoint=${apiEndpoint} wcEndpoint=${wcEndpoint}`)
   </script>
   <script type="module">
 
-    addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/visual-essays.css`})
-    let el = addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/visual-essays.esm.js`})
+    addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/juncture-digital.css`})
+    let el = addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/juncture-digital.esm.js`})
     el.addEventListener('load', () => {
 
     const videoExtensions = new Set(['mp4', 'ogg', 'ogv', 'webm'])
@@ -132,7 +132,7 @@
     computed: {
       isLoggedIn() { return this.ghAuthToken !== null },
       webHost() { return isDev ? 'http://localhost:8080' : 'https://beta.juncture-digital.org' },
-      link() { return this.contentPath ? `${this.webHost}/${this.contentPath.replace(/visual-essays\/essays\//,'').replace(/\/README\.md$/,'').replace(/\.md$/,'')}` : null }
+      link() { return this.contentPath ? `${this.webHost}/${this.contentPath.replace(/juncture-digital\/essays\//,'').replace(/\/README\.md$/,'').replace(/\.md$/,'')}` : null }
     },
     created() {
       this.ghAuthToken = localStorage.getItem('gh-auth-token')
@@ -404,7 +404,7 @@
       load(srcEl, callback) {
         let e
         if (srcEl.localName  === 'link') {
-          e = addEl({tag: 'link', rel: srcEl.rel, type: 'text/css',  href: srcEl.href.replace(/https:\/\/unpkg\.com\/visual-essays\/dist\/visual-essays/, wcEndpoint)})
+          e = addEl({tag: 'link', rel: srcEl.rel, type: 'text/css',  href: srcEl.href.replace(/https:\/\/unpkg\.com\/juncture-digital\/dist\/juncture-digital/, wcEndpoint)})
           e.addEventListener('load', callback)
           this.loadedDependencies.push(e)
         } else if (srcEl.localName  === 'style') {
@@ -414,7 +414,7 @@
         } else if (srcEl.localName  === 'script') {
           let elArgs = {tag: 'script'}
           if (srcEl.type) elArgs.type = srcEl.type
-          if (srcEl.src) elArgs.src = srcEl.src.replace(/https:\/\/unpkg\.com\/visual-essays\/dist\/visual-essays/, wcEndpoint)
+          if (srcEl.src) elArgs.src = srcEl.src.replace(/https:\/\/unpkg\.com\/juncture-digital\/dist\/juncture-digital/, wcEndpoint)
           else elArgs.text = srcEl.text
           e = addEl(elArgs)
           this.loadedDependencies.push(e)

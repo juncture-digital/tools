@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
-  <link href="https://visual-essays.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.svg" rel="icon" type="image/svg+xml"/>
+  <link href="https://juncture-digital.github.io/web-app/static/images/favicon.png" rel="icon" type="image/png"/>
   <title>Juncture: Editor</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
@@ -41,7 +41,7 @@
     <ve-header
       v-cloak
       background="#5B152E"
-      logo="https://raw.githubusercontent.com/visual-essays/media/main/images/Juncture_Logo.png"
+      logo="https://raw.githubusercontent.com/juncture-digital/media/main/images/Juncture_Logo.png"
       label="Annotator"
       url="/"
     >
@@ -109,11 +109,11 @@
     }
     const isDev = window.location.hostname == 'localhost'
     const apiEndpoint = isDev ? 'http://localhost:8000' : 'https://api.juncture-digital.org'
-    const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/visual-essays/dist/visual-essays'
+    const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'
     const iiifEndpoint = isDev ? 'http://localhost:8088' : 'https://iiif.juncture-digital.org'
     const annotationsEndpoint = isDev ? 'http://localhost:8000' : 'https://api.juncture-digital.org'
-    addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/visual-essays.css`})
-    addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/visual-essays.esm.js`})
+    addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/juncture-digital.css`})
+    addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/juncture-digital.esm.js`})
     console.log(`editor: hostname=${window.location.hostname} isDev=${isDev} apiEndpoint=${apiEndpoint} wcEndpoint=${wcEndpoint}`)
   </script>
   <script type="module">
@@ -175,7 +175,7 @@
         fetch(this.manifestUrl.replace(/\?/,'%3F')).then(resp => resp.json())
           .then(manifest =>
             !Array.isArray(manifest['@context']) && parseFloat(manifest['@context'].split('/').slice(-2,-1).pop()) < 3
-              ? fetch('https://iiif.visual-essays.net/prezi2to3/', {
+              ? fetch('https://iiif.juncture-digital.org/prezi2to3/', {
                 method: 'POST', body: JSON.stringify(manifest)}).then(resp => resp.json())
               : Promise.resolve(manifest)
           )
