@@ -64,11 +64,12 @@
       <textarea v-cloak ref="content"></textarea>
     </div>
 
-    <b-modal v-cloak id="save-modal" title="Save File">
-      <p class="my-4">Save File <b>{{contentPath.split('/').slice(2).join('/')}}</b> before changing?</p>
+    <b-modal v-cloak id="save-confirm" title="Save file?">
+      <p class="my-4">Path: <b>{{remoteStagingPath}}</b></p>
+      <!-- <div style="height:40vh; overflow-y:scroll;"><pre>{{remoteStagingContent}}</pre></div> -->
       <template #modal-footer="{ ok }">
-        <b-button size="sm" @click="changeContent">No</b-button>
-        <b-button size="sm" variant="primary" @click="saveAfterConfirm">Yes</b-button>
+        <b-button size="sm" variant="normal" @click="changeContent()">No</b-button>
+        <b-button size="sm" variant="primary" @click="doSave()">Yes</b-button>
       </template>
     </b-modal>
 
@@ -117,6 +118,7 @@
     el: '#editor',
     data: () => ({
       contentPath: '',
+      priorContentPath: '',
       pathRoot: '/',
       ghAuthToken: null,
       acct: null,
@@ -127,7 +129,16 @@
       loadedDependencies: [],
       userCanUpdate: false,
       saveStatus: '',
-      helpWindow: null
+      helpWindow: null,
+
+      remotePendingPath: '',
+      remoteStagingPath: '',
+      remoteStagingContent: '',
+
+      lastRemoteSavePath: '',
+      lastRemoteSaveContent: '',
+      lastRemoteSaveHash: ''
+
     }),
     computed: {
       isLoggedIn() { return this.ghAuthToken !== null },
@@ -159,7 +170,9 @@
       },
 
       async parseContentPath(newContentPath) {
-        localStorage.setItem('pending-content-path', newContentPath)
+        this.priorContentPath = this.contentPath
+
+        this.remotePendingPath = newContentPath
 
         if (this.isPreviewActive) EasyMDE.togglePreview(this.easyMDE)
 
@@ -170,12 +183,11 @@
         if (newContentPath !== priorContentPath && priorContentPath && this.isFile(priorContentPath)) {
           let currentContent = this.easyMDE.value().trim()
           let currentHash = currentContent.hashCode()
-          let lastRemoteHash = localStorage.getItem('last-remote-save-hash')
           // console.log(`parseContentPath: currentHash=${currentHash} lastRemoteHash=${lastRemoteHash}`)
-          if (currentHash != lastRemoteHash) {
-            localStorage.setItem('remote-staging-content', currentContent)
-            localStorage.setItem('remote-staging-path', this.contentPath)
-            this.$bvModal.show('save-modal')
+          if (currentHash != this.lastRemoteSaveHash) {
+            this.remoteStagingContent = currentContent
+            this.remoteStagingPath = this.contentPath
+            this.$bvModal.show('save-confirm')
           } else {
             this.changeContent()
           }
@@ -185,40 +197,41 @@
       },
 
       async changeContent() {
-        let newContentPath = localStorage.getItem('pending-content-path')
+        let newContentPath = this.remotePendingPath
 
         let [source, contentSpec] = newContentPath.split(':')
         let [contentPath, argsStr] = contentSpec.split('?');
         [this.acct, this.repo] = contentPath.split('/')
         let filePath = contentPath.split('/').slice(2).join('/')
         this.userCanUpdate = await this.$refs.contentSelector.repositoryIsWriteable()
-        // console.log(`editor.parseContentPath: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} writeable=${this.userCanUpdate}`)
+        
+        // console.log(`editor.changeContent: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} isFile=${this.isFile(filePath)} writeable=${this.userCanUpdate}`)
 
         if (this.isFile(filePath)) {
           let markdown
           if (newContentPath === localStorage.getItem('smde_juncture_path')) {
             markdown = localStorage.getItem('smde_juncture_content')
-            // console.log('use locally saved content')
-          } else if (newContentPath === localStorage.getItem('last-remote-save-path')) {
-            markdown = localStorage.getItem('last-remote-save-content')
-            localStorage.setItem('last-remote-save-hash', markdown.trim().hashCode())
-            // console.log('use last remote save content')
+            console.log(`loadContent: path: ${newContentPath} source: locally saved content`)
+          } else if (newContentPath === this.lastRemoteSavePath) {
+            markdown = this.lastRemoteSaveContent
+            this.lastRemoteSaveHash = markdown.trim().hashCode()
+            console.log(`loadContent: path: ${newContentPath} source: last remote save`)
           }
           if (!markdown) {
             markdown = (await this.$refs.contentSelector.getFile(filePath)).content
-            // console.log('use remote content')
-            localStorage.setItem('last-remote-save-hash', markdown.trim().hashCode())
+            console.log(`loadContent: path: ${newContentPath} source: remote content`)
+            this.lastRemoteSaveHash = markdown.trim().hashCode()
           }
           this.easyMDE.value(markdown)
         } else {
           this.easyMDE.value('')
-          localStorage.removeItem('last-remote-save-hash')
+          this.lastRemoteSaveHash = ''
         }
-        localStorage.removeItem('pending-content-path')
+        this.remotePendingPath = ''
         this.contentPath = contentPath
         if (this.contentPath) localStorage.setItem('smde_juncture_path', newContentPath)
         window.history.replaceState({}, null, `${this.pathRoot}${contentSpec}`)
-        this.$bvModal.hide('save-modal')
+        this.$bvModal.hide('save-confirm')
       },
 
       initEditor() {
@@ -340,18 +353,23 @@
         this.helpWindow = window.open(url, '_blank', options)
       },
 
-      async saveAfterConfirm() {
-        let path = localStorage.getItem('remote-staging-path')
-        let markdown = localStorage.getItem('remote-staging-content')
+      async doSave() {
+        let path = this.remoteStagingPath
+        let markdown = this.remoteStagingContent
         this.saveStatus = await this.$refs.contentSelector.putFile(path, markdown)
-        if (this.saveStatus.status === 200) localStorage.setItem('last-remote-save-hash', markdown.trim().hashCode())
-        localStorage.removeItem('remote-staging-path')
-        localStorage.removeItem('remote-staging-content')
+        if (this.saveStatus.status === 200) {
+          this.lastRemoteSavePath = path
+          this.lastRemoteSaveContent = markdown
+          this.lastRemoteSaveHash = markdown.trim().hashCode()
+        }
+        this.remoteStagingPath = ''
+        this.remoteStagingContent = ''
         this.$bvToast.show('essay-saved')
-        this.$bvModal.hide('save-modal')
-        this.changeContent(localStorage.getItem('pending-content-path'))
+        this.$bvModal.hide('save-confirm')
+        if (this.remotePendingPath) this.changeContent()
       },
     
+      /*
       async saveFile() {
         let path = localStorage.getItem('smde_juncture_path')
         let markdown = this.easyMDE.value().trim()
@@ -363,6 +381,17 @@
           localStorage.setItem('last-remote-save-hash', markdown.trim().hashCode())
         }
         this.$bvToast.show('essay-saved')
+      },
+      */
+
+      async saveFile() {
+        this.remoteStagingPath = this.contentPath
+        this.remoteStagingContent = this.easyMDE.value().trim()
+        let currentHash = this.remoteStagingContent.hashCode()
+        if (currentHash != this.lastRemoteSaveHash) {
+          // this.$bvModal.show('save-confirm')
+          this.doSave()
+        }
       },
 
       togglePreview(markdown, preview) {
@@ -426,7 +455,6 @@
         let cursorPos = this.easyMDE.codemirror.coordsChar({left:e.pageX, top:e.pageY})
         let inputText = ''
         if (e.dataTransfer) inputText = decodeURI(e.dataTransfer.getData('Text') || e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text/uri-list'))
-        console.log(`drop: ${inputText}`)
         if (inputText && isURL(inputText)) {
           let url = inputText
           let parsed = new URL(url)
