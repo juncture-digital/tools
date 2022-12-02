@@ -199,8 +199,9 @@
 
       async changeContent() {
         let newContentPath = this.remotePendingPath
+        console.log(`changeContent: newContentPath=${newContentPath}`)
 
-        let [source, contentSpec] = newContentPath.split(':')
+        let [source, contentSpec] = newContentPath.indexOf(':') > 0 ? newContentPath.split(':') : [null, newContentPath]
         let [contentPath, argsStr] = contentSpec.split('?');
         [this.acct, this.repo] = contentPath.split('/')
         let filePath = contentPath.split('/').slice(2).join('/')
