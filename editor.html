@@ -150,7 +150,7 @@
       window.addEventListener('storage', (evt) => this.ghAuthToken = localStorage.getItem('gh-auth-token'))
     },
     mounted() {
-      this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail).replace(/^gh:/,''))
+      this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail.replace(/^gh:/,'')))
       let pathElems = window.location.pathname.split('/').filter(pe => pe)
       if (pathElems.length > 0 && pathElems[0] === 'editor') {
         this.pathRoot = '/editor/'
