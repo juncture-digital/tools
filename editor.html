@@ -118,7 +118,7 @@
     el: '#editor',
     data: () => ({
       contentPath: '',
-      priorContentPath: '',
+      // priorContentPath: '',
       pathRoot: '/',
       ghAuthToken: null,
       acct: null,
@@ -177,7 +177,7 @@
 
         // let priorContentPath = localStorage.getItem('smde_juncture_path')
         
-        console.log(`parseContentPath: newContentPath=${newContentPath} priorContentPath=${priorContentPath}`)
+        console.log(`parseContentPath: newContentPath=${newContentPath} priorContentPath=${this.contentPath}`)
 
         if (this.contentPath && newContentPath !== this.contentPath && this.isFile(this.contentPath)) {
 
