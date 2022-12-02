@@ -205,7 +205,7 @@
         let filePath = contentPath.split('/').slice(2).join('/')
         this.userCanUpdate = await this.$refs.contentSelector.repositoryIsWriteable()
         
-        // console.log(`editor.changeContent: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} isFile=${this.isFile(filePath)} writeable=${this.userCanUpdate}`)
+        console.log(`editor.changeContent: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} isFile=${this.isFile(filePath)} writeable=${this.userCanUpdate}`)
 
         if (this.isFile(filePath)) {
           let markdown
