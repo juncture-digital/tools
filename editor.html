@@ -170,23 +170,24 @@
       },
 
       async parseContentPath(newContentPath) {
-        this.priorContentPath = this.contentPath
-
-        this.remotePendingPath = newContentPath
-
         if (this.isPreviewActive) EasyMDE.togglePreview(this.easyMDE)
 
-        let priorContentPath = localStorage.getItem('smde_juncture_path')
-        
-        // console.log(`parseContentPath: newContentPath=${newContentPath} priorContentPath=${priorContentPath}`)
+        this.priorContentPath = this.contentPath
+        this.remotePendingPath = newContentPath
 
-        if (newContentPath !== priorContentPath && priorContentPath && this.isFile(priorContentPath)) {
+        // let priorContentPath = localStorage.getItem('smde_juncture_path')
+        
+        console.log(`parseContentPath: newContentPath=${newContentPath} priorContentPath=${priorContentPath}`)
+
+        if (this.contentPath && newContentPath !== this.contentPath && this.isFile(this.contentPath)) {
+
           let currentContent = this.easyMDE.value().trim()
           let currentHash = currentContent.hashCode()
-          // console.log(`parseContentPath: currentHash=${currentHash} lastRemoteHash=${lastRemoteHash}`)
+          console.log(`parseContentPath: currentHash=${currentHash} lastRemoteHash=${this.lastRemoteSaveHash}`)
+          
           if (currentHash != this.lastRemoteSaveHash) {
-            this.remoteStagingContent = currentContent
             this.remoteStagingPath = this.contentPath
+            this.remoteStagingContent = currentContent
             this.$bvModal.show('save-confirm')
           } else {
             this.changeContent()
