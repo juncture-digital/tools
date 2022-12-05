@@ -75,7 +75,7 @@
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script type="module">
     
-    const fileExtensions = new Set(['yaml','jpg','jpeg','jp2','png','tif','tiff'])
+    const fileExtensions = new Set(['jp2', 'jpeg', 'jpg', 'mp3', 'mp4', 'ogg', 'ogv', 'png', 'tif', 'tiff', 'webm', 'yaml'])
     const ignore = new Set(['iiif-props.yaml', 'iiif-props.template.yaml'])
 
     new Vue({
@@ -128,6 +128,7 @@
         console.log(`media.contentPath=${this.contentPath}`)
         window.history.replaceState({}, null, `${this.pathRoot}${contentSpec}`)
         this.dirList = (await this.$refs.contentSelector.getDirList()).map(item => {item.root = root; return item})
+        console.log(this.dirList)
       },
 
       addMediaResource(evt) {
