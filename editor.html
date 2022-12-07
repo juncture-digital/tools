@@ -69,7 +69,7 @@
       <p class="my-4">Path: <b>{{toSavePath}}</b></p>
       <!-- <div style="height:40vh; overflow-y:scroll;"><pre>{{toSaveContent}}</pre></div> -->
       <template #modal-footer="{ ok }">
-        <b-button size="sm" variant="normal" @click="changeContent()">No</b-button>
+        <b-button size="sm" variant="normal" @click="setContent()">No</b-button>
         <b-button size="sm" variant="primary" @click="doSave()">Yes</b-button>
       </template>
     </b-modal>
@@ -135,7 +135,7 @@
       newContentPath: '',
       toSavePath: '',
       toSaveContent: '',
-      currentIsSaved: false,
+      currentIsSaved: true,
 
       _debounce: null
 
@@ -151,6 +151,7 @@
     },
     mounted() {
       this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail.replace(/^gh:/,'')))
+      this.$refs.contentSelector.addEventListener('accessChanged', async (evt) => this.userCanUpdate = evt.detail.canUpdate)
       let pathElems = window.location.pathname.split('/').filter(pe => pe)
       if (pathElems.length > 0 && pathElems[0] === 'editor') {
         this.pathRoot = '/editor/'
@@ -160,6 +161,7 @@
         ? localStorage.getItem('smde_juncture_path') || ''
         : pathElems.join('/')
       this.initEditor()
+
     },
     methods: {
 
@@ -171,7 +173,7 @@
         this.debounce = window.setTimeout(() => {
           let savedHash = localStorage.getItem('smde_juncture_saved_hash')
           let currentHash = `${this.easyMDE.value().trim().hashCode()}`
-          this.currentIsSaved = currentHash === savedHash
+          this.currentIsSaved = !savedHash || currentHash === savedHash
           document.querySelector('#save').disabled = this.currentIsSaved
         }, 500)
       },
@@ -199,10 +201,10 @@
             this.toSaveContent = this.easyMDE.value().trim()
             this.$bvModal.show('save-confirm')
           } else {
-            this.changeContent()
+            this.setContent()
           }
         } else {
-          this.changeContent()
+          this.setContent()
         }
       },
 
@@ -214,19 +216,18 @@
         this.$bvModal.hide('save-confirm')
         if (this.saveStatus.status === 200) {
           this.currentIsSaved = true
-          this.changeContent()
+          this.setContent()
         }
       },
 
-      async changeContent() {
-
-        let [source, contentSpec] = this.newContentPath.indexOf(':') > 0 ? this.newContentPath.split(':') : [null, this.newContentPath]
+      async setContent(path) {
+        let [source, contentSpec] = (path || this.newContentPath).indexOf(':') > 0 ? this.newContentPath.split(':') : [null, this.newContentPath]
         let [contentPath, argsStr] = contentSpec.split('?');
         [this.acct, this.repo] = contentPath.split('/')
         let filePath = contentPath.split('/').slice(2).join('/')
         this.userCanUpdate = await this.$refs.contentSelector.repositoryIsWriteable()
         
-        console.log(`editor.changeContent: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} isFile=${this.isFile(filePath)} writeable=${this.userCanUpdate}`)
+        console.log(`editor.setContent: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} isFile=${this.isFile(filePath)} writeable=${this.userCanUpdate}`)
 
         if (this.isFile(filePath)) {
           let markdown
@@ -342,6 +343,7 @@
         this.fileTitle = this.fileTitle || localStorage.getItem(`${this.userHash}/file-title`) || 'default'
         */
 
+        document.querySelector('#save').disabled = true
         this.easyMDE.codemirror.on('change', this.watchContent)
       },
 
