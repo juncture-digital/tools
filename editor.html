@@ -115,6 +115,8 @@
     el.addEventListener('load', () => {
 
     const videoExtensions = new Set(['mp4', 'ogg', 'ogv', 'webm'])
+    const geojsonExtensions = new Set(['geojson', 'json'])
+
     new Vue({
     el: '#editor',
     data: () => ({
@@ -288,7 +290,7 @@
             uniqueId: 'juncture_content'
           },
           hideIcons: ['side-by-side', 'fullscreen', 'guide'],
-          spellChecker: false,
+          spellChecker: true,
           indentWithTabs: false,
           unorderedListStyle: '-',
           tabSize: 4,
@@ -465,6 +467,8 @@
             }
             this.addVideo(url, cursorPos)
           */
+          } else if (geojsonExtensions.has(fileExtension)) { 
+            this.addMap(url, cursorPos)
           } else {
             let manifestUrl = parsed.searchParams.get('manifest')
             if (manifestUrl) this.addImage(manifestUrl, cursorPos)

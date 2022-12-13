@@ -317,7 +317,8 @@
             this.viewer.open(tileSource)
             console.log(this.imageInfo)
             // this.imageHash = this.hashStr(`${this.imageInfo.id}`).slice(0,8)
-            this.imageHash = this.hashStr(`${this.imageInfo.service[0].id}`).slice(0,8)
+            this.imageHash = this.hashStr(this.imageInfo.service[0].id || this.imageInfo.service[0]['@id']).slice(0,8)
+            console.log(this.imageInfo.service[0].id, imageHash)
             console.log(`annotator: contentPath=${this.contentPath} anno-path=${this.annoPath} manifest=${this.manifestUrl} seq=${this.seq}`)
           })
         }
