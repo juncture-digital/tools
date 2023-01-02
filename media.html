@@ -13,6 +13,7 @@
     body {max-width:1000px; margin: auto !important;}
     .grid-wrapper {margin-top: 24px}
   </style>
+
 </head>
 <body>
 
@@ -23,7 +24,6 @@
       background="#5B152E"
       logo="https://raw.githubusercontent.com/juncture-digital/media/main/images/Juncture_Logo.png"
       contact="Ron.Snyder@ithaka.org"
-      
     >
       <ul>
         <li><a href="/">Juncture home</a></li>
@@ -33,12 +33,12 @@
     </ve-header>
 
     <ve-content-selector ref="contentSelector" 
-      :content-path="contentPath"
+      :path="contentPath"
       mode="media"
-      sticky="true"
+      sticky
     ></ve-content-selector>
 
-    <ve-add-media-resource-dialog ref="addMedia" :show="false" :content-path="contentPath"></ve-add-media-resource-dialog>
+    <ve-add-media-resource-dialog ref="addMedia" :show="false" :path="contentPath"></ve-add-media-resource-dialog>
 
     <ve-media grid cards>
       <ul>
@@ -58,6 +58,7 @@
       }
     }(window.location))
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script>
     let addEl = (args) => {
       let el = document.createElement(args.tag)
@@ -67,12 +68,13 @@
     }
     const isDev = window.location.hostname == 'localhost'
     const iiifServer = 'https://iiif.juncture-digital.org'
-    const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'
-    addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/juncture-digital.css`})
-    addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/juncture-digital.esm.js`})
-    console.log(`media: hostname=${window.location.hostname} isDev=${isDev} iiifServer=${iiifServer} wcEndpoint=${wcEndpoint}`)
+    // const wcEndpoint = isDev ? 'http://localhost:3333/build' : 'https://unpkg.com/juncture-digital/dist/juncture-digital'
+    const wcEndpointBeta = isDev ? 'http://localhost:5173/src/main.ts' : 'https://unpkg.com/@rdsnyderjr/juncture/dist/assets/js'
+    // addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/juncture-digital.css`})
+    // addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/juncture-digital.esm.js`})
+    addEl({tag: 'script', type: 'module', src: wcEndpointBeta})
+    // console.log(`media: hostname=${window.location.hostname} isDev=${isDev} iiifServer=${iiifServer} wcEndpoint=${wcEndpoint}`)
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <script type="module">
     
     const fileExtensions = new Set(['jp2', 'jpeg', 'jpg', 'mp3', 'mp4', 'ogg', 'ogv', 'png', 'tif', 'tiff', 'webm', 'yaml'])
@@ -104,7 +106,7 @@
       window.addEventListener('storage', (evt) => { this.ghAuthToken = localStorage.getItem('gh-auth-token') })
     },
     mounted() {
-      this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail))
+      this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail[0]))
       this.$refs.contentSelector.addEventListener('addMediaResource', this.addMediaResource)
       let pathElems = window.location.href.slice(window.origin.length+1).split('/').filter(pe => pe)
       if (pathElems.length > 0 && pathElems[0] === 'media') {
@@ -112,7 +114,6 @@
         pathElems = pathElems.slice(1)
       } 
       this.contentPath = pathElems.join('/')
-      console.log(`media.contentPath=${this.contentPath}`)
     },
     methods: {
 
@@ -122,18 +123,16 @@
         [this.acct, this.repo] = contentPath.split('/')
         let root = contentPath.split(':').pop().split('?')[0]
         let filePath = contentPath.split('/').slice(2).join('/')
-        this.userCanUpdate = await this.$refs.contentSelector.repositoryIsWriteable()
-        console.log(`acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} writeable=${this.userCanUpdate}`)
+        this.userCanUpdate = await this.$refs.contentSelector._instance.exposed.repositoryIsWriteable()
+        // console.log(`acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} writeable=${this.userCanUpdate}`)
         this.contentPath = contentPath
-        console.log(`media.contentPath=${this.contentPath}`)
         window.history.replaceState({}, null, `${this.pathRoot}${contentSpec}`)
-        this.dirList = (await this.$refs.contentSelector.getDirList()).map(item => {item.root = root; return item})
-        console.log(this.dirList)
+        this.dirList = this.$refs.contentSelector._instance.exposed.getDirList().map(item => {item.root = root; return item})
       },
 
       addMediaResource(evt) {
-        console.log('addMediaResource', evt)
-        this.$refs.addMedia.show = true
+        console.log('addMediaResource')
+        this.$refs.addMedia._instance.exposed.show(true)
       }
 
     },
