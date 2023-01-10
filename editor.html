@@ -142,7 +142,7 @@
     }),
     computed: {
       isLoggedIn() { return this.ghAuthToken !== null },
-      webHost() { return isDev ? 'http://localhost:8080' : 'https://beta.juncture-digital.org' },
+      webHost() { return isDev ? 'http://localhost:8080' : window.location.origin },
       link() { return this.contentPath ? `${this.webHost}/${this.contentPath.replace(/juncture-digital\/essays\//,'').replace(/\/README\.md$/,'').replace(/\.md$/,'')}` : null }
     },
     created() {
@@ -376,7 +376,7 @@
         let isDev = window.location.hostname === 'localhost' || window.location.hostname.indexOf('192.168.') === 0
         let url = isDev 
           ? `http://${window.location.hostname}:8080/docs`
-          : 'https://beta.juncture-digital.org/docs'
+          : `${window.location.origin}/docs`
         let options = 'toolbar=no,location=no,left=0,top=0,width=1050,height=1200,scrollbars=no,status=no'
         this.helpWindow = window.open(url, '_blank', options)
       },
