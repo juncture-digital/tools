@@ -11,7 +11,6 @@
     [v-cloak] {display: none}
     * {box-sizing: border-box;}
     body {max-width:1000px; margin: auto !important;}
-    .grid-wrapper {margin-top: 24px}
   </style>
 
 </head>
@@ -40,7 +39,7 @@
 
     <ve-add-media-resource-dialog ref="addMedia" :show="false" :path="contentPath"></ve-add-media-resource-dialog>
 
-    <ve-media grid cards>
+    <ve-media grid cards :style="{marginTop: '12px'}">
       <ul>
         <li v-for="manifest, idx in manifests" :key="`grid-${idx}`" v-html="manifest"></li>
       </ul>
