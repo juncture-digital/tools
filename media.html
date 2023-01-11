@@ -67,7 +67,7 @@
     }
     const isDev = window.location.hostname == 'localhost'
     const iiifServer = 'https://iiif.juncture-digital.org'
-    const wcEndpoint = isDev ? 'http://localhost:5173/src/main.ts' : 'https://unpkg.com/juncture-digital-vue3/dist/assets/js'
+    const wcEndpoint = isDev ? 'http://localhost:5173/src/main.ts' : 'https://unpkg.com/juncture-digital/dist/assets/js'
     // addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/juncture-digital.css`})
     // addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/juncture-digital.esm.js`})
     addEl({tag: 'script', type: 'module', src: wcEndpoint})
