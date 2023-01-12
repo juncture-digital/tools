@@ -8,9 +8,10 @@
   <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet" />
 
   <style>
-    [v-cloak] {display: none}
-    * {box-sizing: border-box;}
-    body {max-width:1000px; margin: auto !important;}
+    [v-cloak] {display:none}
+    * {box-sizing:border-box;}
+    body {max-width:1000px; margin:auto !important;}
+    ul {display:none;}
   </style>
 
 </head>
@@ -31,8 +32,8 @@
       </ul>
     </ve-header>
 
-    <ve-content-selector ref="contentSelector" 
-      :path="contentPath"
+    <ve-content-selector v-if="contentPath !== null" ref="contentSelector" 
+      :content-path="contentPath"
       mode="media"
       sticky
     ></ve-content-selector>
@@ -45,7 +46,6 @@
       </ul>
     </ve-media>
   
-
   </div>
   
   <!-- This is used for deep linking of Single Page Apps when hosted with GitHub Pages -->
@@ -81,7 +81,7 @@
     new Vue({
     el: '#app',
     data: () => ({
-      contentPath: '',
+      contentPath: null,
       root: '',
       pathRoot: '/',
       ghAuthToken: null,
@@ -104,14 +104,16 @@
       window.addEventListener('storage', (evt) => { this.ghAuthToken = localStorage.getItem('gh-auth-token') })
     },
     mounted() {
-      this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail[0]))
-      this.$refs.contentSelector.addEventListener('addMediaResource', this.addMediaResource)
       let pathElems = window.location.href.slice(window.origin.length+1).split('/').filter(pe => pe)
       if (pathElems.length > 0 && pathElems[0] === 'media') {
         this.pathRoot = `/${pathElems[0]}/`
         pathElems = pathElems.slice(1)
-      } 
+      }
       this.contentPath = pathElems.join('/')
+      this.$nextTick(() => {
+        this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail[0]))
+        this.$refs.contentSelector.addEventListener('addMediaResource', this.addMediaResource)
+      })
     },
     methods: {
 
@@ -122,7 +124,7 @@
         let root = contentPath.split(':').pop().split('?')[0]
         let filePath = contentPath.split('/').slice(2).join('/')
         this.userCanUpdate = await this.$refs.contentSelector._instance.exposed.repositoryIsWriteable()
-        // console.log(`acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} writeable=${this.userCanUpdate}`)
+        // console.log(`parseContentPath: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} writeable=${this.userCanUpdate}`)
         this.contentPath = contentPath
         window.history.replaceState({}, null, `${this.pathRoot}${contentSpec}`)
         this.dirList = this.$refs.contentSelector._instance.exposed.getDirList().map(item => {item.root = root; return item})
