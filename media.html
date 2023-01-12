@@ -32,15 +32,15 @@
       </ul>
     </ve-header>
 
-    <ve-content-selector v-if="contentPath !== null" ref="contentSelector" 
+    <ve-content-selector v-if="contentPath" id="contentSelector" 
       :content-path="contentPath"
       mode="media"
       sticky
     ></ve-content-selector>
 
-    <ve-add-media-resource-dialog ref="addMedia" :show="false" :path="contentPath"></ve-add-media-resource-dialog>
+    <ve-add-media-resource-dialog id="addMedia" :show="false" :path="contentPath"></ve-add-media-resource-dialog>
 
-    <ve-media grid cards :style="{marginTop: '12px'}">
+    <ve-media v-if="contentPath" grid cards :style="{marginTop: '12px'}">
       <ul>
         <li v-for="manifest, idx in manifests" :key="`grid-${idx}`" v-html="manifest"></li>
       </ul>
@@ -57,24 +57,14 @@
       }
     }(window.location))
   </script>
+  <script src="https://unpkg.com/juncture-digital/dist/assets/js" type="module"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <script>
-    let addEl = (args) => {
-      let el = document.createElement(args.tag)
-      Object.keys(args).filter(key => key !== 'tag').forEach(key => el[key] = args[key])
-      document.getElementsByTagName(args.tag === 'script' ? 'body' : 'head')[0].appendChild(el)
-      return el
-    }
-    const isDev = window.location.hostname == 'localhost'
-    const iiifServer = 'https://iiif.juncture-digital.org'
-    const wcEndpoint = isDev ? 'http://localhost:5173/src/main.ts' : 'https://unpkg.com/juncture-digital/dist/assets/js'
-    // addEl({tag: 'link', rel: 'stylesheet', type: 'text/css', href: `${wcEndpoint}/juncture-digital.css`})
-    // addEl({tag: 'script', type: 'module', src: `${wcEndpoint}/juncture-digital.esm.js`})
-    addEl({tag: 'script', type: 'module', src: wcEndpoint})
-    // console.log(`media: hostname=${window.location.hostname} isDev=${isDev} iiifServer=${iiifServer} wcEndpoint=${wcEndpoint}`)
-  </script>
   <script type="module">
     
+    const isDev = window.location.hostname == 'localhost'
+    const wcEndpoint = 'https://unpkg.com/juncture-digital/dist/assets/js'
+    const iiifEndpoint = 'https://iiif.juncture-digital.org'
+
     const fileExtensions = new Set(['jp2', 'jpeg', 'jpg', 'mp3', 'mp4', 'ogg', 'ogv', 'png', 'tif', 'tiff', 'webm', 'yaml'])
     const ignore = new Set(['iiif-props.yaml', 'iiif-props.template.yaml'])
 
@@ -111,8 +101,8 @@
       }
       this.contentPath = pathElems.join('/')
       this.$nextTick(() => {
-        this.$refs.contentSelector.addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail[0]))
-        this.$refs.contentSelector.addEventListener('addMediaResource', this.addMediaResource)
+        document.getElementById('contentSelector').addEventListener('contentPathChanged', async (evt) => this.parseContentPath(evt.detail[0]))
+        document.getElementById('contentSelector').addEventListener('addMediaResource', this.addMediaResource)
       })
     },
     methods: {
@@ -123,16 +113,16 @@
         [this.acct, this.repo] = contentPath.split('/')
         let root = contentPath.split(':').pop().split('?')[0]
         let filePath = contentPath.split('/').slice(2).join('/')
-        this.userCanUpdate = await this.$refs.contentSelector._instance.exposed.repositoryIsWriteable()
+        this.userCanUpdate = await document.getElementById('contentSelector')._instance.exposed.repositoryIsWriteable()
         // console.log(`parseContentPath: acct=${this.acct} repo=${this.repo} contentPath=${contentPath} filePath=${filePath} writeable=${this.userCanUpdate}`)
         this.contentPath = contentPath
         window.history.replaceState({}, null, `${this.pathRoot}${contentSpec}`)
-        this.dirList = this.$refs.contentSelector._instance.exposed.getDirList().map(item => {item.root = root; return item})
+        this.dirList = document.getElementById('contentSelector')._instance.exposed.getDirList().map(item => {item.root = root; return item})
       },
 
       addMediaResource(evt) {
         console.log('addMediaResource')
-        this.$refs.addMedia._instance.exposed.show(true)
+        document.getElementById('addMedia')._instance.exposed.show(true)
       }
 
     },
